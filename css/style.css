@@ -1,0 +1,74 @@
+.tools-col {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 20px;
+}
+
+.tools-col .bloc-container {
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.tools-col .bloc-container .checkbox-containers {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  gap: 20px;
+}
+
+.tools-col .bloc-container .preview-text-bloc {
+  position: relative;
+}
+
+.tools-col .bloc-container .preview-text-bloc #manual_edit_text {
+  position: absolute;
+  right: 20px;
+  top: 80px;
+}
+
+.tools-col .bloc-container .preview-text-bloc .preview-text {
+  color: #FFF;
+  background-color: #192841;
+  border-radius: 10px;
+  width: 100%;
+  height: 0px;
+  resize: none;
+  overflow: hidden;
+}
+
+.tools-col .bloc-container .preview-text-bloc .preview-text .text-project {
+  color: red;
+}
+
+body {
+  min-height: 100vh;
+  background-image: linear-gradient(135deg, rgba(238, 238, 238, 0.1), rgba(16, 16, 16, 0.1)), linear-gradient(183deg, white, #f0f0f0);
+}
+
+.button-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  gap: 10px;
+}
+
+.key_li {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.delete {
+  cursor: pointer;
+  color: red;
+}
+/*# sourceMappingURL=style.css.map */
