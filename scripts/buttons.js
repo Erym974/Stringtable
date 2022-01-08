@@ -59,7 +59,7 @@ const ButtonCreateKeyClicked = (button, type, error) => {
 
     switch (type) {
         case "success":
-            button.innerHTML = 'Container created <i class="fas fa-check ps-1"></i>'
+            button.innerHTML = 'Key created <i class="fas fa-check ps-1"></i>'
             break;
 
         case "danger":
@@ -72,7 +72,7 @@ const ButtonCreateKeyClicked = (button, type, error) => {
         button.disabled = false;
         button.classList.remove(`btn-${type}`);
         button.classList.add('btn-dark');
-        button.innerHTML= 'Create container <i class="fas fa-plus-circle ps-1"></i></i>'
+        button.innerHTML= 'Create key <i class="fas fa-plus-circle ps-1"></i></i>'
     }, 2000)
 }
 

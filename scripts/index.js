@@ -212,6 +212,8 @@ const CreateKey = (button) => {
         })
     })
 
+    ButtonCreateKeyClicked(button, 'success')
+
     if(next){
         let key_content = {};
 
