@@ -44,7 +44,7 @@
                                         <input type="text" class="form-control" id="package_name" placeholder="Package name" value="Package">
                                     </div>
                                 </div>
-                                <p class="h4 py-2">Language to translate</p>
+                                <p class="h4 py-2">Languages</p>
                                 <div class="alert alert-danger" role="alert" id="checkbox-lang-alert" style="display:none;">
                                     You need to check one language minimum <i class="fas fa-exclamation ps-1"></i>
                                 </div>
@@ -72,6 +72,11 @@
                                 <div class="form-group">
                                     <input type="file" class="form-control-file" id="import_stringtable" accept="text/xml">
                                     <button type="button" class="btn btn-dark my-2 float-end" onclick="ImportFile(this)">Import file <i class="fas fa-file-import"></i></button>
+                                </div>
+
+                                <p class="h4 py-2 mt-4">Saved datas</p>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-dark my-2" onclick="ResetDatas(this)">Reset datas <i class="fas fa-trash-restore"></i></button>
                                 </div>
 
                             </form>

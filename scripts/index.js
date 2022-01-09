@@ -426,7 +426,10 @@ function ImportFile(button){
 
         setWithExpiry('stringtable', JSON.stringify(stringtable))
 
+        containers = [];
+
         StringTableFile.querySelectorAll('container').forEach((container_element) => {
+
             let container = new Container(container_element.getAttribute('name'))
             container_element.querySelectorAll('key').forEach((key_element) => {
                 let key_content = {}
@@ -439,6 +442,8 @@ function ImportFile(button){
             containers.push(container)
         })
 
+        ButtonImportFileClicked(button, 'success')
+
         SaveContainer()
         UpdatePreviews()
 
@@ -446,6 +451,29 @@ function ImportFile(button){
     reader.onerror = error => reject(error)
     reader.readAsText(file);
     
+}
+
+function ResetDatas(button){
+    stringtable = {
+        "project_name": "Project",
+        "package_name": "Package"
+    }
+    containers = []
+    languages = ["English"];
+    all_languages = []
+    deepl_auth = "";
+
+    setWithExpiry('stringtable', stringtable)
+    setWithExpiry('containers', '')
+    setWithExpiry('deepl_auth', '')
+
+    document.getElementById('project_name').value = "Project"
+    document.getElementById('package_name').value = "Package"
+
+    SaveContainer()
+    UpdatePreviews()
+
+    ButtonResetDatasClicked(button)
 }
 
 function download(file_name, file_content){

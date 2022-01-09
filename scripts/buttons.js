@@ -26,6 +26,21 @@ const ButtonCopiedClicked = (button) => {
     }, 1000)
 }
 
+const ButtonResetDatasClicked = (button) => {
+    button.style.transition = "all 0.3s";
+    button.style.width = "180px"
+    button.classList.remove('btn-dark');
+    button.classList.add('btn-success');
+
+    button.innerHTML = 'Reset <i class="fas fa-check ps-1"></i>'
+
+    setTimeout(function(){
+        button.classList.remove('btn-success');
+        button.classList.add('btn-dark');
+        button.innerHTML= 'Reset datas <i class="fas fa-trash-restore"></i>'
+    }, 1000)
+}
+
 const ButtonCreateContainerClicked = (button, type) => {
     button.style.transition = "all 0.3s";
     button.classList.remove('btn-dark');

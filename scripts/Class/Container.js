@@ -3,8 +3,8 @@ let Container = function(name){
     this.name = name;
     this.Keys = [];
 
-    this.CreateKey = (key_name, key_content, language) => {
-        let key = new Key(key_name, key_content, language);
+    this.CreateKey = (key_name, key_content) => {
+        let key = new Key(key_name, key_content);
         this.Keys.push(key)
     };
 
