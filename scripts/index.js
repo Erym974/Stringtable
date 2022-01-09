@@ -7,10 +7,10 @@ let preview_list = document.getElementById("preview_list");
 let stringtable = {}
 let containers = []
 let languages = ["English"];
-let all_languages = []
+let all_languages = ["English", "French", "Russian","Spanish","Italian","Polish","Portuguese","Russian","Korean","Japanese","Chinese", "Turkish"]
 let deepl_auth = "";
 
-const UpdateTextPreview = () => {
+function UpdateTextPreview(){
 
     preview_text.value = `<?xml version="1.0" encoding="UTF-8" ?>
 <Project name="${stringtable.project_name}">
@@ -45,7 +45,7 @@ const UpdateTextPreview = () => {
     },0);
 }
 
-const UpdateListPreview = () => {
+function UpdateListPreview(){
 
     preview_list.innerHTML = `
 <ul>
@@ -89,7 +89,7 @@ containers.forEach((container) => {
 
 }
 
-const DeleteContainer = (container_name) => {
+function DeleteContainer(container_name){
     containers.forEach((container, index) => {
         if(container_name == container.name){
             containers.splice(index, 1)
@@ -100,7 +100,7 @@ const DeleteContainer = (container_name) => {
     UpdatePreviews()
 }
 
-const TranslateKey = (button) => {
+function TranslateKey(button){
     ButtonTranslateClicked(button, 'loading');
 
     let original_language = document.getElementById('starting_language').value;
@@ -124,7 +124,7 @@ const TranslateKey = (button) => {
 
 }
 
-const TranslateText = (text, language, input, button) => {
+function TranslateText(text, language, input, button){
 
     let exit = false;
 
@@ -180,7 +180,7 @@ const TranslateText = (text, language, input, button) => {
 
 }
 
-const UpdateDeeplAuthAPI = (input) => {
+function UpdateDeeplAuthAPI(input){
     deepl_auth = input.value;
     setWithExpiry('deepl_auth', deepl_auth)
     if(deepl_auth != ""){
@@ -190,7 +190,7 @@ const UpdateDeeplAuthAPI = (input) => {
     }
 }
 
-const DeleteKey = (container_name, key_name) => {
+function DeleteKey(container_name, key_name){
     containers.forEach((container) => {
         if(container_name == container.name){
             container.Keys.forEach((container_key, index) => {
@@ -210,7 +210,7 @@ const DeleteKey = (container_name, key_name) => {
     UpdatePreviews()
 }
 
-const TableEdit = (cell, language, key_name) => {
+function TableEdit(cell, language, key_name){
     let key = null;
 
     containers.forEach((container) => {
@@ -228,7 +228,7 @@ const TableEdit = (cell, language, key_name) => {
     UpdatePreviews();
 }
 
-const KeyItemTab = (li) => {
+function KeyItemTab(li){
     
     let preview_list_tab = document.getElementById('preview_list_tab')
 
@@ -260,7 +260,7 @@ const KeyItemTab = (li) => {
 
 }
 
-function setWithExpiry(key, value) {
+function setWithExpiry(key, value){
 	const item = {
 		value: value,
 		expiry: expirate,
@@ -268,7 +268,7 @@ function setWithExpiry(key, value) {
 	localStorage.setItem(key, JSON.stringify(item))
 }
 
-function getWithExpiry(key) {
+function getWithExpiry(key){
 	const itemStr = localStorage.getItem(key)
 	if (!itemStr) {
 		return null
@@ -282,12 +282,12 @@ function getWithExpiry(key) {
 	return item.value
 }
 
-const UpdatePreviews = () => {
+function UpdatePreviews(){
     UpdateTextPreview();
     UpdateListPreview();
 }
 
-const CreateContainer = (button) => {
+function CreateContainer(button){
     if((document.getElementById('container_name').value).replaceAll(' ', '_') != ""){
         let container_name = (document.getElementById('container_name').value).replaceAll(' ', '_');
         let container = new Container(container_name)
@@ -303,7 +303,7 @@ const CreateContainer = (button) => {
     UpdateContainerDrop();
 }
 
-const CreateKey = (button) => {
+function CreateKey(button){
     let key_name = document.getElementById('key_name')
     let language_select = document.getElementById('starting_language')
     let container_select = document.getElementById('container_list')
@@ -346,7 +346,7 @@ const CreateKey = (button) => {
 
 }
 
-ResetKey = () => {
+function ResetKey(){
     let container_list = document.getElementById('container_list')
     container_list.innerHTML = '<option value="null">None</option>';
     container_list.disabled = true;
@@ -364,7 +364,7 @@ ResetKey = () => {
 
 }
 
-UpdateContainerDrop = () => {
+function UpdateContainerDrop(){
 
     let container_list = document.getElementById('container_list')
     container_list.innerHTML = "";
@@ -388,13 +388,13 @@ UpdateContainerDrop = () => {
     }
 }
 
-const link_to_change = (value) => {
+function link_to_change(value){
     let key_name = document.getElementById('key_name')
 
     key_name.value = `STR_${(value.value).toUpperCase()}_`
 }
 
-const downloadFile = (button) => {
+function downloadFile(button){
     let stringtable = preview_text.value;
     download("Stringtable.xml", stringtable)
     ButtonDownloadClicked(button)
@@ -457,10 +457,8 @@ function ResetDatas(button){
     stringtable = {
         "project_name": "Project",
         "package_name": "Package"
-    }
-    containers = []
-    languages = ["English"];
-    all_languages = []
+    }   
+    containers = [] 
     deepl_auth = "";
 
     setWithExpiry('stringtable', stringtable)
@@ -491,14 +489,14 @@ function download(file_name, file_content){
 
 }
 
-const CopyToClipboard = (button) => {
+function CopyToClipboard(button){
     preview_text.select();
     document.execCommand('copy')
     window.getSelection().removeAllRanges();
     ButtonCopiedClicked(button);
 }
 
-const EditPreviewText = (button) => {
+function EditPreviewText(button){
     if(preview_text.disabled){
         preview_text.disabled = false;
         button.innerHTML = 'Save change <i class="far fa-save ps-1"></i>'
@@ -508,7 +506,7 @@ const EditPreviewText = (button) => {
     }
 }
 
-const SaveContainer = () => {
+function SaveContainer(){
     let saved = []
     containers.forEach((container) => {
         saved.push(container.toString());
@@ -516,7 +514,7 @@ const SaveContainer = () => {
     setWithExpiry('containers', JSON.stringify(saved))
 }
 
-const InitFormUpdate = () => {
+function InitFormUpdate(){
     
     project_input = document.getElementById('project_name')
     package_input = document.getElementById('package_name')
@@ -548,7 +546,7 @@ const InitFormUpdate = () => {
 
 }
 
-const LanguageCheck = (check) => {
+function LanguageCheck(check){
     
     if(languages.includes(check.value)){
         if(languages.length == 1){
@@ -590,7 +588,7 @@ const LanguageCheck = (check) => {
 
 }
 
-const CreateLanguages = (custom_language) => {
+function CreateLanguages(custom_language){
 
     let custom_language_minus = (custom_language[0] + custom_language[1] + custom_language[3]).toLowerCase()
 
@@ -606,7 +604,7 @@ const CreateLanguages = (custom_language) => {
     </div>`
 }
 
-const AddLanguage = (button) => {
+function AddLanguage(button){
 
     let custom_language = document.getElementById('custom_language')
     
@@ -620,19 +618,16 @@ const AddLanguage = (button) => {
     ButtonAddLanguageClicked(button, 'success')
 }
 
-const InitSavedDatas = () => {
+function InitSavedDatas(){
 
     if (getWithExpiry("stringtable") != null) {
-        let datas = JSON.parse(getWithExpiry("stringtable"));
-
+        let datas = getWithExpiry("stringtable");
         document.getElementById('project_name').value = datas.project_name
         document.getElementById('package_name').value = datas.package_name
-
         stringtable = {
             "project_name": datas.project_name,
             "package_name": datas.package_name
         }
-
     } else {
         stringtable = {
             "project_name": "Project",
@@ -643,20 +638,19 @@ const InitSavedDatas = () => {
     if (getWithExpiry("deepl_auth") != null) {
         deepl_auth = getWithExpiry("deepl_auth");
         document.getElementById('deepl_auth_input').value = deepl_auth
-        UpdateDeeplAuthAPI(document.getElementById('deepl_auth_input')  )
+        UpdateDeeplAuthAPI(document.getElementById('deepl_auth_input'))
     }
 
     if (getWithExpiry("containers") != null) {
-        let datas = JSON.parse(getWithExpiry("containers"));
-
-        datas.forEach((data) => {
-            data = JSON.parse(data)
+        let datas = getWithExpiry("containers");
+        for(let i = 0; i <= (datas.length - 1); i++){
+            let data = JSON.parse(datas[i])
             let container = new Container(data.name)
             for(let i = 0; i <= (data.keys).length - 1; i++){
                 container.CreateKey(data.keys[i].name, data.keys[i].content)
             }
             containers.push(container)
-        })
+        }
         UpdateContainerDrop();
         UpdatePreviews();
     }
@@ -680,7 +674,6 @@ window.addEventListener('load', () => {
     InitSavedDatas();
     UpdatePreviews();
     InitFormUpdate();
-    all_languages.push("English", "French", "Russian","Spanish","Italian","Polish","Portuguese","Russian","Korean","Japanese","Chinese", "Turkish");
 
     ["French", "Russian","Spanish","Italian","Polish","Portuguese","German","Korean","Japanese","Chinese", "Turkish"].forEach((lang) => {
         CreateLanguages(lang)
