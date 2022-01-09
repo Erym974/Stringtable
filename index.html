@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="wrapper">
-        <div class="container p-5">
+    <div class="container p-1">
             <h1 class="text-center pb-5">Stringtable Tools</h1>
             <div class="tools-col">
 
@@ -29,18 +29,20 @@
                           <button class="nav-link" id="key-tab" data-bs-toggle="tab" data-bs-target="#key" type="button" role="tab" aria-controls="key" aria-selected="false">Key</button>
                         </li>
                     </ul>
-                    <div class="tab-content" id="myTabContent">
+                    <div class="tab-content" id="tabs_content">
 
                         <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
-                            <form class="p-3 mb-4" action="#" method="post" id="form_general">
+                            <form class="p-3 mb-4" action="#" method="post" id="form_general" enctype='multipart/form-data'>
                                 <p class="h4 py-2">Stringtable informations</p>
-                                <div class="form-group py-2">
-                                  <label for="project_name">Project name</label>
-                                  <input type="text" class="form-control" id="project_name" placeholder="Project name" value="Project">
-                                </div>
-                                <div class="form-group py-2">
-                                    <label for="package_name">Package name</label>
-                                    <input type="text" class="form-control" id="package_name" placeholder="Package name" value="Package">
+                                <div class="row">
+                                    <div class="form-group py-2 col-md-6">
+                                        <label for="project_name">Project name</label>
+                                        <input type="text" class="form-control" id="project_name" placeholder="Project name" value="Project">
+                                    </div>
+                                    <div class="form-group py-2 col-md-6">
+                                        <label for="package_name">Package name</label>
+                                        <input type="text" class="form-control" id="package_name" placeholder="Package name" value="Package">
+                                    </div>
                                 </div>
                                 <p class="h4 py-2">Language to translate</p>
                                 <div class="alert alert-danger" role="alert" id="checkbox-lang-alert" style="display:none;">
@@ -57,7 +59,19 @@
                                 <div class="form-group py-2">
                                     <label for="project_name">Add a custom language</label>
                                     <input type="text" class="form-control" id="custom_language" placeholder="Exemple : Chinese">
-                                    <button type="submit" class="btn btn-dark my-2 float-end" onclick="AddLanguage(this)">Add language <i class="fas fa-plus-circle ps-1"></i></button>
+                                    <button type="button" class="btn btn-dark my-2 float-end" onclick="AddLanguage(this)">Add language <i class="fas fa-plus-circle ps-1"></i></button>
+                                </div>
+
+                                <div class="form-group py-2 mt-5">
+                                  <label for="deepl_auth_input">Deepl auth API for auto translate</label>
+                                  <input type="password" class="form-control" id="deepl_auth_input"  placeholder="Deepl auth api" onkeyup="UpdateDeeplAuthAPI(this)">
+                                  <a href="https://www.deepl.com/en/pro-api?cta=header-pro-api/" class="float-end" target="_blank">Get your deepl auth key</a>
+                                </div>
+
+                                <p class="h4 py-2 mt-4">Import file</p>
+                                <div class="form-group">
+                                    <input type="file" class="form-control-file" id="import_stringtable" accept="text/xml">
+                                    <button type="button" class="btn btn-dark my-2 float-end" onclick="ImportFile(this)">Import file <i class="fas fa-file-import"></i></button>
                                 </div>
 
                             </form>
@@ -107,9 +121,11 @@
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-dark my-2 float-end" onclick="CreateKey(this)" disabled>Create key <i class="fas fa-plus-circle ps-1"></i></button>
+                                <button type="button" class="btn btn-dark m-2  float-end" id="translate_button" style="display:none;" onclick="TranslateKey(this)" >Translate original key <i class="fas fa-language"></i></button>
                             </form>
 
                         </div>
+                        
                     </div>
                 </div>
 
@@ -117,10 +133,10 @@
                     <div class="preview-list-bloc">
                         <h2 class="mb-4">Preview Stringtable list</h2>
                             <div class="row">
-                                <div class="col-md-4 preview-list" id="preview_list">
+                                <div class="col-md-5 col-sm-12 preview-list" id="preview_list">
                                 
                                 </div>
-                                <div class="col-md-7" id="preview_list_tab" style="display:none">
+                                <div class="col-md-6 col-sm-12" id="preview_list_tab" style="display:none">
                                     <table class="table">
                                         <thead class="thead-dark">
                                           <tr>
@@ -141,7 +157,7 @@
                 <div class="bloc-container p-3">
                     <div class="preview-text-bloc">
                         <h2 class="mb-4">Preview Stringtable.xml</h2>
-                        <button type="button" class="btn btn-light" id="manual_edit_text" onclick="EditPreviewText(this)">Manual edit <i class="far fa-edit ps-1"></i></button>
+                        <!--<button type="button" class="btn btn-light" id="manual_edit_text" onclick="EditPreviewText(this)">Manual edit <i class="far fa-edit ps-1"></i></button>-->
                         <textarea class="preview-text p-4" id="preview_text" disabled></textarea>
                         <div class="button-container">
                             <button type="button" class="btn btn-dark my-4" onclick="CopyToClipboard(this)">Copy to clipboard <i class="far fa-copy ps-1"></i></button>

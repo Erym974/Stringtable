@@ -1,16 +1,16 @@
+const now = new Date()
+const expirate = now.getTime() + (1*60*60*1000)
+
 let preview_text = document.getElementById("preview_text");
 let preview_list = document.getElementById("preview_list");
 
-let stringtable = {
-    "project_name": "Project",
-    "package_name": "Package"
-}
+let stringtable = {}
 let containers = []
 let languages = ["English"];
 let all_languages = []
+let deepl_auth = "";
 
 const UpdateTextPreview = () => {
-
 
     preview_text.value = `<?xml version="1.0" encoding="UTF-8" ?>
 <Project name="${stringtable.project_name}">
@@ -100,6 +100,96 @@ const DeleteContainer = (container_name) => {
     UpdatePreviews()
 }
 
+const TranslateKey = (button) => {
+    ButtonTranslateClicked(button, 'loading');
+
+    let original_language = document.getElementById('starting_language').value;
+    let key_to_translate = document.getElementById(`langue-selected-${original_language}`).value
+
+    if(key_to_translate == ""){ButtonTranslateClicked(button, 'error', 'Original key can\'t be null'); return;}
+    if(languages.length == 1){ButtonTranslateClicked(button, 'error', 'There are no other languages'); return;}
+
+    languages.forEach((language, index) => {
+        
+        if(language != original_language){
+            if(button.getAttribute('data-translate') == 'error-403'){ButtonTranslateClicked(button, 'error', 'Auth key is invalid');return;}
+            TranslateText(key_to_translate, language, document.getElementById(`langue-selected-${language}`), button)
+        }
+
+        if(index == languages.length - 1){
+            ButtonTranslateClicked(button, 'success')
+        }
+
+    })
+
+}
+
+const TranslateText = (text, language, input, button) => {
+
+    let exit = false;
+
+    switch(language){
+        case "French":
+            language = "fr"
+            break
+        case "English":
+            language = "en"
+            break
+        case "Russian":
+            language = "ru"
+            break
+        case "Spanish":
+            language = "es"
+            break
+        case "Italian":
+            language = "it"
+            break
+        case "Polish":
+            language = "pl"
+            break
+        case "Chinese":
+            language = "zh"
+            break
+        case "Portuguese":
+            language = "pt"
+            break
+        case "Japanese":
+            language = "ja"
+            break
+        case "German":
+            language = "de"
+            break
+        default:
+            exit = true;
+            break;
+        }
+
+    if(exit){return;}
+    if(button.getAttribute('data-translate') == 'error-403'){ButtonTranslateClicked(button, 'error', 'Auth key is invalid');return;}
+        
+    fetch(`https://api-free.deepl.com/v2/translate?auth_key=${deepl_auth}&text=${text}&target_lang=${language}`)
+    .then(function(res) {
+        if(res.ok){
+            res.json().then(datas => {
+                input.value = datas.translations[0].text;
+            })
+        } else {
+            button.setAttribute('data-translate', 'error-403')
+        }
+    })
+
+}
+
+const UpdateDeeplAuthAPI = (input) => {
+    deepl_auth = input.value;
+    setWithExpiry('deepl_auth', deepl_auth)
+    if(deepl_auth != ""){
+        document.getElementById('translate_button').style.display = "block";
+    } else {
+        document.getElementById('translate_button').style.display = "none";
+    }
+}
+
 const DeleteKey = (container_name, key_name) => {
     containers.forEach((container) => {
         if(container_name == container.name){
@@ -130,6 +220,8 @@ const TableEdit = (cell, language, key_name) => {
             }
         });
     })
+
+    SaveContainer();
 
     key.key_content[language] = cell.innerText
 
@@ -168,7 +260,27 @@ const KeyItemTab = (li) => {
 
 }
 
+function setWithExpiry(key, value) {
+	const item = {
+		value: value,
+		expiry: expirate,
+	}
+	localStorage.setItem(key, JSON.stringify(item))
+}
 
+function getWithExpiry(key) {
+	const itemStr = localStorage.getItem(key)
+	if (!itemStr) {
+		return null
+	}
+	const item = JSON.parse(itemStr)
+	const now = new Date()
+	if (now.getTime() > item.expiry) {
+		localStorage.removeItem(key)
+		return null
+	}
+	return item.value
+}
 
 const UpdatePreviews = () => {
     UpdateTextPreview();
@@ -183,9 +295,11 @@ const CreateContainer = (button) => {
         ButtonCreateContainerClicked(button, 'success');
         containers.push(container)
         UpdatePreviews();
+        SaveContainer();
     } else {
         ButtonCreateContainerClicked(button, 'danger');
     }
+
     UpdateContainerDrop();
 }
 
@@ -207,7 +321,6 @@ const CreateKey = (button) => {
             container = cont;
         }
         cont.Keys.forEach((key) => {
-            console.log(`${key.name} -- ${key_name.value}`);
             if(key.name == key_name.value){next = false; ButtonCreateKeyClicked(button, 'danger', 'This key name is already used'); return;}
         })
     })
@@ -227,9 +340,8 @@ const CreateKey = (button) => {
             key_content[language] = document.getElementById(`langue-selected-${language}`).value
         })  
     
-        container.CreateKey(key_name.value, key_content, language_select.value)
-    
-        UpdatePreviews()
+        container.CreateKey(key_name.value, key_content)
+        SaveContainer();
     }
 
 }
@@ -288,12 +400,61 @@ const downloadFile = (button) => {
     ButtonDownloadClicked(button)
 }
 
+function ImportFile(button){
+    let input = document.getElementById('import_stringtable')
+
+    if(input.files.length == 0){ButtonImportFileClicked(button, 'danger', 'No file have been choosen'); return}
+    if(input.files.length > 1){ButtonImportFileClicked(button, 'danger', 'Multiple files are not allowed'); return}
+    if(input.files[0].type != "text/xml"){ButtonImportFileClicked(button, 'danger', 'Only xml files are allowed'); return}
+
+    let file = input.files[0]
+
+    let file_content = ""; 
+    const reader = new FileReader()
+    reader.onload = function(e) {
+        file_content = e.target.result 
+        if(!file_content.includes("Project") && !file_content.includes("Package") && !file_content.includes('<?xml')){ButtonImportFileClicked(button, 'danger', 'This file is not a stringtable file'); return}
+
+        let StringTableFile = document.createElement('div')
+        StringTableFile.innerHTML = file_content
+
+        stringtable.project_name = StringTableFile.querySelector('project').getAttribute('name');
+        stringtable.package_name = StringTableFile.querySelector('package').getAttribute('name');
+
+        document.getElementById('project_name').value = StringTableFile.querySelector('project').getAttribute('name');
+        document.getElementById('package_name').value = StringTableFile.querySelector('package').getAttribute('name');
+
+        setWithExpiry('stringtable', JSON.stringify(stringtable))
+
+        StringTableFile.querySelectorAll('container').forEach((container_element) => {
+            let container = new Container(container_element.getAttribute('name'))
+            container_element.querySelectorAll('key').forEach((key_element) => {
+                let key_content = {}
+                for(let i = 0; i <= key_element.children.length - 1; i++){
+                    let language = `${key_element.children[i].tagName[0]}${key_element.children[i].tagName.slice(1).toLowerCase()}`
+                    key_content[language] = key_element.children[i].innerText
+                }
+                container.CreateKey(key_element.getAttribute('id'), key_content)
+            })
+            containers.push(container)
+        })
+
+        SaveContainer()
+        UpdatePreviews()
+
+    }
+    reader.onerror = error => reject(error)
+    reader.readAsText(file);
+    
+}
+
 function download(file_name, file_content){
 
     let element = document.createElement('a');
     element.style.display = 'none';
 
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(file_content));
+    element.setAttribute('target', '_blank');
     element.setAttribute('download', file_name);
     document.body.appendChild(element)
 
@@ -319,6 +480,14 @@ const EditPreviewText = (button) => {
     }
 }
 
+const SaveContainer = () => {
+    let saved = []
+    containers.forEach((container) => {
+        saved.push(container.toString());
+    })
+    setWithExpiry('containers', JSON.stringify(saved))
+}
+
 const InitFormUpdate = () => {
     
     project_input = document.getElementById('project_name')
@@ -329,36 +498,49 @@ const InitFormUpdate = () => {
 
     inputs.forEach((input) => {
         input.onkeyup = () => {
-            stringtable[input.getAttribute("id")] = input.value.replaceAll(' ', '_');
+            if(input.getAttribute('id') != "container_name"){
+                stringtable[input.getAttribute("id")] = input.value.replaceAll(' ', '_');
+                setWithExpiry('stringtable', JSON.stringify(stringtable))
+            }
             UpdatePreviews();
         }
-        input.addEventListener('change', () => {
-            if(input.value == ""){
-                input.value = "Default"
-                stringtable[input.getAttribute("id")] = "Default"
-                UpdatePreviews();
-            }
-        })
+        if(input.getAttribute('id') != "container_name"){
+            input.addEventListener('change', () => {
+                if(input.value == ""){
+                    input.value = "Default"
+                    stringtable[input.getAttribute("id")] = "Default"
+                    UpdatePreviews();
+                }
+            })
+        }
+
     })
+
+    
 
 }
 
 const LanguageCheck = (check) => {
-
     
-        if(languages.includes(check.value)){
-            if(languages.length == 1){
-                document.getElementById('checkbox_en').checked = true;
-                document.getElementById('checkbox-lang-alert').style.display = "block"
-                setTimeout(function(){
-                    document.getElementById('checkbox-lang-alert').style.display = "none"
-                }, 4000)
-            } else {
-                languages.splice(languages.indexOf(check.value), 1)
-            }
+    if(languages.includes(check.value)){
+        if(languages.length == 1){
+            document.getElementById('checkbox_en').checked = true;
+            document.getElementById('checkbox-lang-alert').style.display = "block"
+            setTimeout(function(){
+                document.getElementById('checkbox-lang-alert').style.display = "none"
+            }, 4000)
         } else {
-            languages.push(check.value)
+            languages.splice(languages.indexOf(check.value), 1)
         }
+    } else {
+        languages.push(check.value) 
+    }
+
+    setWithExpiry('languages', languages.toString())
+
+    let temp_disabled = '';
+
+        if(containers.length == 0){temp_disabled = "disabled"}
 
     document.getElementById('keys-languages').innerHTML = "";
     languages.forEach((lang) => {
@@ -367,7 +549,7 @@ const LanguageCheck = (check) => {
             <div class="input-group-prepend">
                 <span class="input-group-text" id="language-${lang}-label">${lang}</span>
             </div>
-            <input type="text" name="${lang.toLowerCase}" class="form-control" id="langue-selected-${lang}" aria-describedby="language-${lang}-label">
+            <input type="text" name="${lang.toLowerCase}" class="form-control" id="langue-selected-${lang}" aria-describedby="language-${lang}-label" ${temp_disabled}>
         </div>
         `
     })
@@ -410,6 +592,49 @@ const AddLanguage = (button) => {
     ButtonAddLanguageClicked(button, 'success')
 }
 
+const InitSavedDatas = () => {
+
+    if (getWithExpiry("stringtable") != null) {
+        let datas = JSON.parse(getWithExpiry("stringtable"));
+
+        document.getElementById('project_name').value = datas.project_name
+        document.getElementById('package_name').value = datas.package_name
+
+        stringtable = {
+            "project_name": datas.project_name,
+            "package_name": datas.package_name
+        }
+
+    } else {
+        stringtable = {
+            "project_name": "Project",
+            "package_name": "Package"
+        }
+    }
+
+    if (getWithExpiry("deepl_auth") != null) {
+        deepl_auth = getWithExpiry("deepl_auth");
+        document.getElementById('deepl_auth_input').value = deepl_auth
+        UpdateDeeplAuthAPI(document.getElementById('deepl_auth_input')  )
+    }
+
+    if (getWithExpiry("containers") != null) {
+        let datas = JSON.parse(getWithExpiry("containers"));
+
+        datas.forEach((data) => {
+            data = JSON.parse(data)
+            let container = new Container(data.name)
+            for(let i = 0; i <= (data.keys).length - 1; i++){
+                container.CreateKey(data.keys[i].name, data.keys[i].content)
+            }
+            containers.push(container)
+        })
+        UpdateContainerDrop();
+        UpdatePreviews();
+    }
+
+}
+
 document.getElementById('form_container').addEventListener('submit', (event) => {
     event.preventDefault();
     container_name = document.getElementById('container_name').value
@@ -417,8 +642,6 @@ document.getElementById('form_container').addEventListener('submit', (event) => 
 
 document.getElementById('form_general').addEventListener('submit', (event) => {
     event.preventDefault();
-    project_name = document.getElementById('project_name').value
-    package_name = document.getElementById('package_name').value
 })
 
 document.getElementById('form_key').addEventListener('submit', (event) => {
@@ -426,11 +649,12 @@ document.getElementById('form_key').addEventListener('submit', (event) => {
 })
 
 window.addEventListener('load', () => {
+    InitSavedDatas();
     UpdatePreviews();
     InitFormUpdate();
     all_languages.push("English", "French", "Russian","Spanish","Italian","Polish","Portuguese","Russian","Korean","Japanese","Chinese", "Turkish");
 
-    ["French", "Russian","Spanish","Italian","Polish","Portuguese","Russian","Korean","Japanese","Chinese", "Turkish"].forEach((lang) => {
+    ["French", "Russian","Spanish","Italian","Polish","Portuguese","German","Korean","Japanese","Chinese", "Turkish"].forEach((lang) => {
         CreateLanguages(lang)
     })
 })
