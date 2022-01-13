@@ -2,7 +2,7 @@ let changelog_containers = document.getElementById('changelog-containers')
 const changelog = [
     {
         "version": "1.0",
-        "notes": "Création of the website",
+        "notes": "Initialization of the website",
         "details":[
             "Adding the functionnality : Import file",
             "Adding the functionnality : Auto translation",
